@@ -30,8 +30,14 @@ ACCENT_CONF="${HOME}/.config/themes/accent.conf"
 [[ -n "${HYPRMURAL_IMAGE:-}" ]] || { echo "accent.sh: HYPRMURAL_IMAGE not set" >&2; exit 1; }
 [[ -r "$HYPRMURAL_IMAGE" ]] || { echo "accent.sh: image unreadable: $HYPRMURAL_IMAGE" >&2; exit 1; }
 
-# 1. Regenerate accent.{css,conf,ini}
-matugen image --config "$CONFIG" --source-color-index 0 -q "$HYPRMURAL_IMAGE"
+# 1. Regenerate accent.{css,conf,ini}.
+#    `--prefer saturation` picks the most saturated extracted candidate
+#    instead of the most frequent. Matters for wallpapers where the
+#    dominant color is a desaturated background (sky, dark terminal)
+#    and the *interesting* color is a small but vivid accent (logo,
+#    foreground glyph). Swap to --source-color-index 0 if you'd
+#    rather rank by dominance, or --prefer lightness/value/etc.
+matugen image --config "$CONFIG" --prefer saturation -q "$HYPRMURAL_IMAGE"
 
 # 2. Parse accent.conf for the M3 slot values matugen rendered.
 declare -A v
