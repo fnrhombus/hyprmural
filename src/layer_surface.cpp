@@ -6,6 +6,7 @@
 
 #include <GLES2/gl2.h>
 #include <stdexcept>
+#include <string>
 
 namespace hm {
 
@@ -51,6 +52,10 @@ LayerSurface::~LayerSurface() {
 
 void LayerSurface::set_fit(FitMode f) {
     fit_ = static_cast<int>(f);
+}
+
+const std::string& LayerSurface::output_name() const {
+    return output_.name;
 }
 
 void LayerSurface::render() {

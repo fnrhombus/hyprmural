@@ -2,6 +2,7 @@
 
 #include <EGL/egl.h>
 #include <cstdint>
+#include <string>
 #include <wayland-client.h>
 #include <wayland-egl.h>
 
@@ -30,6 +31,7 @@ public:
     void render();
     EGLSurface egl_surface() const { return egl_surface_; }
     bool configured() const { return configured_; }
+    const std::string& output_name() const;
 
     static void on_configure(void* data, zwlr_layer_surface_v1* surface,
                              uint32_t serial, uint32_t w, uint32_t h);

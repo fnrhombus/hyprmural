@@ -7,6 +7,8 @@
 #include <poll.h>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "config.h"
@@ -26,7 +28,7 @@ void install_signal_handlers() {
     struct sigaction sa {};
     sa.sa_handler = on_signal;
     sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;  // no SA_RESTART — let blocking syscalls return EINTR
+    sa.sa_flags = 0;
     sigaction(SIGINT, &sa, nullptr);
     sigaction(SIGTERM, &sa, nullptr);
 }
@@ -34,6 +36,15 @@ void install_signal_handlers() {
 void usage(FILE* out) {
     std::fprintf(out, "usage: hyprmural [--config <path>]\n");
 }
+
+const std::unordered_set<std::string> kWorkspaceEvents = {
+    "workspace",         "workspacev2",
+    "focusedmon",        "focusedmonv2",
+    "moveworkspace",     "moveworkspacev2",
+    "activespecial",     "activespecialv2",
+    "createworkspace",   "createworkspacev2",
+    "destroyworkspace",  "destroyworkspacev2",
+};
 
 }  // namespace
 
@@ -74,29 +85,65 @@ int main(int argc, char** argv) {
         wl.roundtrip();
 
         egl.make_current(surfaces.front()->egl_surface());
-        hm::Image img(cfg.default_image);
         auto renderer = std::make_unique<hm::Renderer>();
-        auto texture = std::make_unique<hm::Texture>(img);
 
-        std::printf("hyprmural — config %s; default %dx%d on %zu surface(s); "
-                    "%zu workspace mapping(s); IPC connected; Ctrl-C to exit\n",
-                    config_path.c_str(), img.width(), img.height(),
-                    surfaces.size(), cfg.per_workspace.size());
-        std::fflush(stdout);
+        // Preload every unique image referenced by the config.
+        std::unordered_map<std::string, std::unique_ptr<hm::Image>> images;
+        std::unordered_map<std::string, std::unique_ptr<hm::Texture>> textures;
+        const auto preload = [&](const std::string& path) {
+            if (textures.count(path)) return;
+            auto img = std::make_unique<hm::Image>(path);
+            auto tex = std::make_unique<hm::Texture>(*img);
+            images.emplace(path, std::move(img));
+            textures.emplace(path, std::move(tex));
+        };
+        preload(cfg.default_image);
+        for (const auto& [_, p] : cfg.per_workspace) preload(p);
+
+        const auto resolve = [&](const std::string& workspace) -> hm::Texture* {
+            const auto it = cfg.per_workspace.find(workspace);
+            const std::string& path =
+                (it != cfg.per_workspace.end()) ? it->second : cfg.default_image;
+            return textures.at(path).get();
+        };
 
         for (auto& s : surfaces) {
             s->set_renderer(renderer.get());
-            s->set_texture(texture.get());
             s->set_fit(cfg.fit);
-            s->render();
+            s->set_texture(textures.at(cfg.default_image).get());
         }
 
-        const auto on_event = [](const std::string& ev, const std::string& data) {
-            std::printf("[ipc] %s = %s\n", ev.c_str(), data.c_str());
-            std::fflush(stdout);
+        std::unordered_map<std::string, std::string> last_workspace;  // monitor -> ws name
+
+        const auto sync_workspaces = [&]() {
+            const auto map = hm::parse_monitors_active_workspace(
+                hm::HyprlandIPC::request("monitors"));
+            for (auto& s : surfaces) {
+                const auto& mon = s->output_name();
+                const auto it = map.find(mon);
+                if (it == map.end()) continue;
+                if (last_workspace[mon] == it->second) continue;
+                last_workspace[mon] = it->second;
+                s->set_texture(resolve(it->second));
+                s->render();
+                std::printf("[hyprmural] %s -> workspace %s\n",
+                            mon.c_str(), it->second.c_str());
+                std::fflush(stdout);
+            }
         };
 
+        std::printf("hyprmural — config %s; %zu image(s) preloaded; %zu surface(s); "
+                    "Ctrl-C to exit\n",
+                    config_path.c_str(), textures.size(), surfaces.size());
+        std::fflush(stdout);
+
+        sync_workspaces();
         wl.flush();
+
+        const auto on_event = [&](const std::string& ev, const std::string&) {
+            if (kWorkspaceEvents.count(ev)) sync_workspaces();
+        };
+
         while (g_running.load(std::memory_order_relaxed)) {
             while (wl.prepare_read() != 0) wl.dispatch_pending();
             wl.flush();
