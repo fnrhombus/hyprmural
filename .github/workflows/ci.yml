@@ -19,7 +19,7 @@ jobs:
             cmake ninja pkgconf \
             wayland wayland-protocols mesa libxkbcommon libwebp
       - name: Configure
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
       - name: Build
         run: cmake --build build
       - name: Install (DESTDIR)
