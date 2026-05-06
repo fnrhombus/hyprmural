@@ -1,0 +1,4 @@
+/build/
+/.claude/memory/
+/.mise.local.toml
+/compile_commands.json

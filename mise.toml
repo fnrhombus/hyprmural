@@ -1,0 +1,27 @@
+[tools]
+cmake = "latest"
+ninja = "latest"
+
+[env]
+BUILD_DIR = "{{config_root}}/build"
+
+[tasks.configure]
+description = "Configure CMake build"
+run = "cmake -S . -B $BUILD_DIR -G Ninja"
+
+[tasks.build]
+alias = "b"
+description = "Build hyprmural"
+depends = ["configure"]
+run = "cmake --build $BUILD_DIR"
+
+[tasks.clean]
+alias = "c"
+description = "Remove build directory"
+run = "rm -rf $BUILD_DIR"
+
+[tasks.run]
+alias = "r"
+description = "Run hyprmural"
+depends = ["build"]
+run = "$BUILD_DIR/hyprmural"
