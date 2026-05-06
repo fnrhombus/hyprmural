@@ -70,3 +70,16 @@ target_link_libraries(hyprmural PRIVATE
     PkgConfig::EGL
     PkgConfig::GLES
     PkgConfig::WEBP)
+
+include(GNUInstallDirs)
+install(TARGETS hyprmural RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(DIRECTORY examples/
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/hyprmural/examples
+    USE_SOURCE_PERMISSIONS
+    PATTERN "__pycache__" EXCLUDE
+    PATTERN "*.pyc" EXCLUDE)
+install(FILES LICENSE
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/licenses/hyprmural)
+install(FILES README.md
+    DESTINATION ${CMAKE_INSTALL_DOCDIR}
+    OPTIONAL)

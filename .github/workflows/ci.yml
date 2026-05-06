@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: cmake build (Arch)
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install deps
+        run: |
+          pacman -Syu --noconfirm --needed \
+            cmake ninja pkgconf \
+            wayland wayland-protocols mesa libxkbcommon libwebp
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build
+      - name: Install (DESTDIR)
+        run: |
+          DESTDIR=/tmp/install cmake --install build
+          test -x /tmp/install/usr/bin/hyprmural
+
+  namcap-pkgbuild:
+    name: namcap PKGBUILD (${{ matrix.flavor }})
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        flavor: [hyprmural, hyprmural-git]
+    steps:
+      - uses: actions/checkout@v5
+      - run: pacman -Syu --noconfirm namcap
+      - run: namcap aur/${{ matrix.flavor }}/PKGBUILD
