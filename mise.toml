@@ -25,3 +25,9 @@ alias = "r"
 description = "Run hyprmural"
 depends = ["build"]
 run = "$BUILD_DIR/hyprmural"
+
+[tasks.install]
+alias = "i"
+description = "Install hyprmural to ~/.local/bin"
+depends = ["build"]
+run = "install -Dm755 $BUILD_DIR/hyprmural $HOME/.local/bin/hyprmural"
