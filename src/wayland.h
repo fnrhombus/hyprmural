@@ -6,6 +6,8 @@
 #include <list>
 #include <string>
 
+struct zwlr_layer_shell_v1;
+
 namespace hm {
 
 struct Output {
@@ -26,7 +28,13 @@ public:
     Wayland& operator=(const Wayland&) = delete;
 
     void roundtrip();
+    int dispatch();
+    void flush();
+    wl_display* display() const { return display_; }
+    wl_compositor* compositor() const { return compositor_; }
+    ::zwlr_layer_shell_v1* layer_shell() const { return layer_shell_; }
     const std::list<Output>& outputs() const { return outputs_; }
+    std::list<Output>& outputs() { return outputs_; }
 
     static void on_global(void* data, wl_registry* reg, uint32_t id, const char* iface, uint32_t version);
     static void on_global_remove(void* data, wl_registry*, uint32_t id);
@@ -41,6 +49,7 @@ private:
     wl_display* display_{};
     wl_registry* registry_{};
     wl_compositor* compositor_{};
+    ::zwlr_layer_shell_v1* layer_shell_{};
     std::list<Output> outputs_;
 };
 

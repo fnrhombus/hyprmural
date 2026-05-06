@@ -1,5 +1,7 @@
 #include "wayland.h"
 
+#include "wlr-layer-shell-unstable-v1-client-protocol.h"
+
 #include <algorithm>
 #include <cstring>
 #include <stdexcept>
@@ -39,12 +41,16 @@ Wayland::Wayland() {
     if (!compositor_) {
         throw std::runtime_error("wl_compositor missing");
     }
+    if (!layer_shell_) {
+        throw std::runtime_error("zwlr_layer_shell_v1 missing — compositor must support wlr-layer-shell");
+    }
 }
 
 Wayland::~Wayland() {
     for (auto& o : outputs_) {
         if (o.proxy) wl_output_destroy(o.proxy);
     }
+    if (layer_shell_) zwlr_layer_shell_v1_destroy(layer_shell_);
     if (compositor_) wl_compositor_destroy(compositor_);
     if (registry_) wl_registry_destroy(registry_);
     if (display_) wl_display_disconnect(display_);
@@ -52,6 +58,14 @@ Wayland::~Wayland() {
 
 void Wayland::roundtrip() {
     wl_display_roundtrip(display_);
+}
+
+int Wayland::dispatch() {
+    return wl_display_dispatch(display_);
+}
+
+void Wayland::flush() {
+    wl_display_flush(display_);
 }
 
 void Wayland::on_global(void* data, wl_registry* reg, uint32_t id,
@@ -66,6 +80,9 @@ void Wayland::on_global(void* data, wl_registry* reg, uint32_t id,
         out.proxy = static_cast<wl_output*>(
             wl_registry_bind(reg, id, &wl_output_interface, std::min(version, 4u)));
         wl_output_add_listener(out.proxy, &kOutputListener, &out);
+    } else if (std::strcmp(iface, zwlr_layer_shell_v1_interface.name) == 0) {
+        self->layer_shell_ = static_cast<zwlr_layer_shell_v1*>(
+            wl_registry_bind(reg, id, &zwlr_layer_shell_v1_interface, std::min(version, 4u)));
     }
 }
 
