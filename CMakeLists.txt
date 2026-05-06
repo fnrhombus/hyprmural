@@ -10,4 +10,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_executable(hyprmural src/main.cpp)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(WAYLAND_CLIENT REQUIRED IMPORTED_TARGET wayland-client)
+
+add_executable(hyprmural
+    src/main.cpp
+    src/wayland.cpp)
+
+target_link_libraries(hyprmural PRIVATE PkgConfig::WAYLAND_CLIENT)
