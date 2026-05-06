@@ -96,7 +96,7 @@ jobs:
           commit_message: "Release ${{ github.event.release.tag_name }}"
           updpkgsums: true
           test: true
-          test_flags: --clean --cleanbuild --nodeps --syncdeps --noconfirm
+          test_flags: --clean --cleanbuild --syncdeps --noconfirm
           ssh_keyscan_types: rsa,ecdsa,ed25519
 
   # Rolling -git package → aur/hyprmural-git. Triggered on push to main.
@@ -117,5 +117,5 @@ jobs:
           commit_message: "Sync with ${{ github.sha }}"
           updpkgsums: false
           test: true
-          test_flags: --clean --cleanbuild --nodeps --syncdeps --noconfirm
+          test_flags: --clean --cleanbuild --syncdeps --noconfirm
           ssh_keyscan_types: rsa,ecdsa,ed25519
