@@ -1,0 +1,25 @@
+/* Mode 3 — Layered: muted fill always, vibrant pop on the active pill.
+ *
+ * Inactive pills wear their workspace's muted swatch, hinted by color
+ * but not loud. Active pill swaps to vibrant fill — the active workspace
+ * really shouts. Middle ground between Bold (always loud) and Subtle. */
+
+#workspaces button:nth-child(1) { color: @ws1_vibrant; background-color: alpha(@ws1_muted, 0.45); border-color: @ws1_muted; }
+#workspaces button:nth-child(2) { color: @ws2_vibrant; background-color: alpha(@ws2_muted, 0.45); border-color: @ws2_muted; }
+#workspaces button:nth-child(3) { color: @ws3_vibrant; background-color: alpha(@ws3_muted, 0.45); border-color: @ws3_muted; }
+#workspaces button:nth-child(4) { color: @ws4_vibrant; background-color: alpha(@ws4_muted, 0.45); border-color: @ws4_muted; }
+#workspaces button:nth-child(5) { color: @ws5_vibrant; background-color: alpha(@ws5_muted, 0.45); border-color: @ws5_muted; }
+#workspaces button:nth-child(6) { color: @ws6_vibrant; background-color: alpha(@ws6_muted, 0.45); border-color: @ws6_muted; }
+#workspaces button:nth-child(7) { color: @ws7_vibrant; background-color: alpha(@ws7_muted, 0.45); border-color: @ws7_muted; }
+#workspaces button:nth-child(8) { color: @ws8_vibrant; background-color: alpha(@ws8_muted, 0.45); border-color: @ws8_muted; }
+#workspaces button:nth-child(9) { color: @ws9_vibrant; background-color: alpha(@ws9_muted, 0.45); border-color: @ws9_muted; }
+
+#workspaces button:nth-child(1).active { color: @ws1_on; background-color: @ws1_vibrant; border-color: @ws1_vibrant; }
+#workspaces button:nth-child(2).active { color: @ws2_on; background-color: @ws2_vibrant; border-color: @ws2_vibrant; }
+#workspaces button:nth-child(3).active { color: @ws3_on; background-color: @ws3_vibrant; border-color: @ws3_vibrant; }
+#workspaces button:nth-child(4).active { color: @ws4_on; background-color: @ws4_vibrant; border-color: @ws4_vibrant; }
+#workspaces button:nth-child(5).active { color: @ws5_on; background-color: @ws5_vibrant; border-color: @ws5_vibrant; }
+#workspaces button:nth-child(6).active { color: @ws6_on; background-color: @ws6_vibrant; border-color: @ws6_vibrant; }
+#workspaces button:nth-child(7).active { color: @ws7_on; background-color: @ws7_vibrant; border-color: @ws7_vibrant; }
+#workspaces button:nth-child(8).active { color: @ws8_on; background-color: @ws8_vibrant; border-color: @ws8_vibrant; }
+#workspaces button:nth-child(9).active { color: @ws9_on; background-color: @ws9_vibrant; border-color: @ws9_vibrant; }

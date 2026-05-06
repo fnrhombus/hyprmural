@@ -1,0 +1,38 @@
+/* Mode 2 — Subtle: pill bg mirrors wallpaper bg, accent on text + active border.
+ *
+ * Each pill:
+ *   - background: ws<N>_bg (most populous low-saturation color in the
+ *     wallpaper — white-dominated wallpapers get near-white pills, dark
+ *     wallpapers get dark pills)
+ *   - text color: ws<N>_pill_fg (wallpaper-derived vibrant adjusted for
+ *     ≥4.5:1 contrast vs bg; falls to black/white if no variant qualifies)
+ *   - border: transparent for inactive, ws<N>_pill_fg for active
+ *
+ * Layout-stable: inactive border is `1px solid transparent` so the active
+ * state's colored border doesn't shift other pills horizontally.
+ *
+ * Selector note: waybar 0.15.0 doesn't expose per-workspace widget names
+ * or classes (verified from Waybar/src/modules/hyprland/workspace.cpp —
+ * only state classes active/persistent/empty/etc.). DOM order via
+ * :nth-child is the only mechanism. Correct in single-output (persistent
+ * "*": [1..9]) and on any output that holds 1..N from the start. */
+
+#workspaces button:nth-child(1) { color: @ws1_pill_fg; background-color: @ws1_bg; border: 1px solid transparent; }
+#workspaces button:nth-child(2) { color: @ws2_pill_fg; background-color: @ws2_bg; border: 1px solid transparent; }
+#workspaces button:nth-child(3) { color: @ws3_pill_fg; background-color: @ws3_bg; border: 1px solid transparent; }
+#workspaces button:nth-child(4) { color: @ws4_pill_fg; background-color: @ws4_bg; border: 1px solid transparent; }
+#workspaces button:nth-child(5) { color: @ws5_pill_fg; background-color: @ws5_bg; border: 1px solid transparent; }
+#workspaces button:nth-child(6) { color: @ws6_pill_fg; background-color: @ws6_bg; border: 1px solid transparent; }
+#workspaces button:nth-child(7) { color: @ws7_pill_fg; background-color: @ws7_bg; border: 1px solid transparent; }
+#workspaces button:nth-child(8) { color: @ws8_pill_fg; background-color: @ws8_bg; border: 1px solid transparent; }
+#workspaces button:nth-child(9) { color: @ws9_pill_fg; background-color: @ws9_bg; border: 1px solid transparent; }
+
+#workspaces button:nth-child(1).active { color: @ws1_pill_fg; background-color: @ws1_bg; border: 1px solid @ws1_pill_fg; }
+#workspaces button:nth-child(2).active { color: @ws2_pill_fg; background-color: @ws2_bg; border: 1px solid @ws2_pill_fg; }
+#workspaces button:nth-child(3).active { color: @ws3_pill_fg; background-color: @ws3_bg; border: 1px solid @ws3_pill_fg; }
+#workspaces button:nth-child(4).active { color: @ws4_pill_fg; background-color: @ws4_bg; border: 1px solid @ws4_pill_fg; }
+#workspaces button:nth-child(5).active { color: @ws5_pill_fg; background-color: @ws5_bg; border: 1px solid @ws5_pill_fg; }
+#workspaces button:nth-child(6).active { color: @ws6_pill_fg; background-color: @ws6_bg; border: 1px solid @ws6_pill_fg; }
+#workspaces button:nth-child(7).active { color: @ws7_pill_fg; background-color: @ws7_bg; border: 1px solid @ws7_pill_fg; }
+#workspaces button:nth-child(8).active { color: @ws8_pill_fg; background-color: @ws8_bg; border: 1px solid @ws8_pill_fg; }
+#workspaces button:nth-child(9).active { color: @ws9_pill_fg; background-color: @ws9_bg; border: 1px solid @ws9_pill_fg; }
