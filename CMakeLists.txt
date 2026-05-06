@@ -51,6 +51,7 @@ add_executable(hyprmural
     src/image.cpp
     src/renderer.cpp
     src/layer_surface.cpp
+    src/config.cpp
     ${GENERATED_DIR}/xdg-shell-protocol.c
     ${GENERATED_DIR}/xdg-shell-client-protocol.h
     ${GENERATED_DIR}/wlr-layer-shell-unstable-v1-protocol.c
