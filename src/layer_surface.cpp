@@ -1,6 +1,7 @@
 #include "layer_surface.h"
 
 #include "egl.h"
+#include "renderer.h"
 #include "wayland.h"
 
 #include <GLES2/gl2.h>
@@ -48,26 +49,23 @@ LayerSurface::~LayerSurface() {
     if (surface_) wl_surface_destroy(surface_);
 }
 
+void LayerSurface::set_fit(FitMode f) {
+    fit_ = static_cast<int>(f);
+}
+
 void LayerSurface::render() {
     if (!configured_ || closed_) return;
+    if (!renderer_ || !texture_) return;
+    if (egl_surface_ == EGL_NO_SURFACE) return;
 
     egl_.make_current(egl_surface_);
 
-    // Distinct color per output by hashing the name — visual confirmation
-    // each surface lands on the right monitor. Replaced by texture rendering
-    // in the next commit.
-    uint32_t h = 2166136261u;
-    for (char c : output_.name) {
-        h ^= static_cast<uint8_t>(c);
-        h *= 16777619u;
-    }
-    const float r = ((h >> 16) & 0xff) / 255.0f;
-    const float g = ((h >> 8) & 0xff) / 255.0f;
-    const float b = (h & 0xff) / 255.0f;
-
-    glViewport(0, 0, width_ * output_.scale, height_ * output_.scale);
-    glClearColor(r, g, b, 1.0f);
+    const int bw = width_ * output_.scale;
+    const int bh = height_ * output_.scale;
+    glViewport(0, 0, bw, bh);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    renderer_->draw(*texture_, bw, bh, static_cast<FitMode>(fit_));
     eglSwapBuffers(egl_.display(), egl_surface_);
 }
 

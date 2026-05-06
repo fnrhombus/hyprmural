@@ -48,13 +48,17 @@ add_executable(hyprmural
     src/main.cpp
     src/wayland.cpp
     src/egl.cpp
+    src/image.cpp
+    src/renderer.cpp
     src/layer_surface.cpp
     ${GENERATED_DIR}/xdg-shell-protocol.c
     ${GENERATED_DIR}/xdg-shell-client-protocol.h
     ${GENERATED_DIR}/wlr-layer-shell-unstable-v1-protocol.c
     ${GENERATED_DIR}/wlr-layer-shell-unstable-v1-client-protocol.h)
 
-target_include_directories(hyprmural PRIVATE ${GENERATED_DIR})
+target_include_directories(hyprmural PRIVATE
+    ${GENERATED_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
 
 target_link_libraries(hyprmural PRIVATE
     PkgConfig::WAYLAND_CLIENT
