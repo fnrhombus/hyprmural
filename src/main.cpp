@@ -13,6 +13,7 @@
 
 #include "config.h"
 #include "egl.h"
+#include "hooks.h"
 #include "hyprland_ipc.h"
 #include "image.h"
 #include "layer_surface.h"
@@ -63,6 +64,7 @@ int main(int argc, char** argv) {
     }
 
     install_signal_handlers();
+    hm::install_hook_reaper();
 
     try {
         const hm::Config cfg = hm::load_config(config_path);
@@ -100,11 +102,9 @@ int main(int argc, char** argv) {
         preload(cfg.default_image);
         for (const auto& [_, p] : cfg.per_workspace) preload(p);
 
-        const auto resolve = [&](const std::string& workspace) -> hm::Texture* {
+        const auto pick_path = [&](const std::string& workspace) -> const std::string& {
             const auto it = cfg.per_workspace.find(workspace);
-            const std::string& path =
-                (it != cfg.per_workspace.end()) ? it->second : cfg.default_image;
-            return textures.at(path).get();
+            return (it != cfg.per_workspace.end()) ? it->second : cfg.default_image;
         };
 
         for (auto& s : surfaces) {
@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
             s->set_texture(textures.at(cfg.default_image).get());
         }
 
-        std::unordered_map<std::string, std::string> last_workspace;  // monitor -> ws name
+        std::unordered_map<std::string, std::string> last_image;  // monitor -> image path
 
         const auto sync_workspaces = [&]() {
             const auto map = hm::parse_monitors_active_workspace(
@@ -122,13 +122,16 @@ int main(int argc, char** argv) {
                 const auto& mon = s->output_name();
                 const auto it = map.find(mon);
                 if (it == map.end()) continue;
-                if (last_workspace[mon] == it->second) continue;
-                last_workspace[mon] = it->second;
-                s->set_texture(resolve(it->second));
+                const std::string& workspace = it->second;
+                const std::string& image = pick_path(workspace);
+                if (last_image[mon] == image) continue;
+                last_image[mon] = image;
+                s->set_texture(textures.at(image).get());
                 s->render();
-                std::printf("[hyprmural] %s -> workspace %s\n",
-                            mon.c_str(), it->second.c_str());
+                std::printf("[hyprmural] %s -> ws %s -> %s\n",
+                            mon.c_str(), workspace.c_str(), image.c_str());
                 std::fflush(stdout);
+                hm::fire_hook(cfg.hook, mon, workspace, image);
             }
         };
 

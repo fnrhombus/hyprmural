@@ -62,6 +62,8 @@ Config load_config(const std::string& path) {
             cfg.fit = parse_fit(val, line_no);
         } else if (key == "default") {
             cfg.default_image = expand_home(val);
+        } else if (key == "hook") {
+            cfg.hook = expand_home(val);
         } else if (key == "workspace") {
             const auto comma = val.find(',');
             if (comma == std::string::npos) {

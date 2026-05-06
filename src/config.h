@@ -11,6 +11,7 @@ struct Config {
     std::string default_image;
     FitMode fit = FitMode::Cover;
     std::unordered_map<std::string, std::string> per_workspace;
+    std::string hook;  // shell command run via /bin/sh -c on each per-output image change
 };
 
 // Parses the config file at `path`. Throws std::runtime_error on failure.
