@@ -68,6 +68,26 @@ void Wayland::flush() {
     wl_display_flush(display_);
 }
 
+int Wayland::fd() const {
+    return wl_display_get_fd(display_);
+}
+
+int Wayland::prepare_read() {
+    return wl_display_prepare_read(display_);
+}
+
+int Wayland::read_events() {
+    return wl_display_read_events(display_);
+}
+
+void Wayland::cancel_read() {
+    wl_display_cancel_read(display_);
+}
+
+int Wayland::dispatch_pending() {
+    return wl_display_dispatch_pending(display_);
+}
+
 void Wayland::on_global(void* data, wl_registry* reg, uint32_t id,
                         const char* iface, uint32_t version) {
     auto* self = static_cast<Wayland*>(data);

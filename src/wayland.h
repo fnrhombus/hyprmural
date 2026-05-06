@@ -30,6 +30,11 @@ public:
     void roundtrip();
     int dispatch();
     void flush();
+    int fd() const;
+    int prepare_read();
+    int read_events();
+    void cancel_read();
+    int dispatch_pending();
     wl_display* display() const { return display_; }
     wl_compositor* compositor() const { return compositor_; }
     ::zwlr_layer_shell_v1* layer_shell() const { return layer_shell_; }
