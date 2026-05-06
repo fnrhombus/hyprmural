@@ -23,6 +23,7 @@ private:
     int width_{};
     int height_{};
     uint8_t* data_{};
+    bool webp_{false};  // controls which deallocator to use
 };
 
 }  // namespace hm

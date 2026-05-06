@@ -15,6 +15,7 @@ pkg_check_modules(WAYLAND_CLIENT REQUIRED IMPORTED_TARGET wayland-client)
 pkg_check_modules(WAYLAND_EGL REQUIRED IMPORTED_TARGET wayland-egl)
 pkg_check_modules(EGL REQUIRED IMPORTED_TARGET egl)
 pkg_check_modules(GLES REQUIRED IMPORTED_TARGET glesv2)
+pkg_check_modules(WEBP REQUIRED IMPORTED_TARGET libwebp)
 
 find_program(WAYLAND_SCANNER wayland-scanner REQUIRED)
 pkg_get_variable(WAYLAND_PROTOCOLS_DIR wayland-protocols pkgdatadir)
@@ -66,4 +67,5 @@ target_link_libraries(hyprmural PRIVATE
     PkgConfig::WAYLAND_CLIENT
     PkgConfig::WAYLAND_EGL
     PkgConfig::EGL
-    PkgConfig::GLES)
+    PkgConfig::GLES
+    PkgConfig::WEBP)
