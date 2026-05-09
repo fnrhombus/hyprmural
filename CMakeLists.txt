@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(hyprmural
-    VERSION 1.0.0  # x-release-please-version
+    VERSION 1.1.0  # x-release-please-version
     DESCRIPTION "Per-workspace wallpaper tool for Hyprland"
     LANGUAGES C CXX)
 
