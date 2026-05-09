@@ -64,6 +64,21 @@ Config load_config(const std::string& path) {
             cfg.default_image = expand_home(val);
         } else if (key == "hook") {
             cfg.hook = expand_home(val);
+        } else if (key == "randomize") {
+            if (val == "true" || val == "yes" || val == "1") {
+                cfg.randomize = true;
+            } else if (val == "false" || val == "no" || val == "0") {
+                cfg.randomize = false;
+            } else {
+                throw std::runtime_error("config:" + std::to_string(line_no) +
+                                         ": randomize expects true/false");
+            }
+        } else if (key == "wallpaper_dir") {
+            if (val.empty()) {
+                throw std::runtime_error("config:" + std::to_string(line_no) +
+                                         ": wallpaper_dir is empty");
+            }
+            cfg.wallpaper_globs.push_back(expand_home(val));
         } else if (key == "workspace") {
             const auto comma = val.find(',');
             if (comma == std::string::npos) {
