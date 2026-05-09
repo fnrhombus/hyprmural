@@ -62,6 +62,21 @@ jobs:
         run: |
           cp -r aur/${{ matrix.flavor }} /tmp/build
           chown -R builder:builder /tmp/build
+
+          # On release PRs the stable PKGBUILD points at a tag that's
+          # bumped *before* the tag is cut (the tag is created when the
+          # release PR merges). makepkg would 404 on the source archive.
+          # Skip the build half in that case; namcap on the PKGBUILD
+          # still runs.
+          if [[ "${{ matrix.flavor }}" == "hyprmural" ]]; then
+            ver=$(awk -F'=' '/^pkgver=/ {print $2}' /tmp/build/PKGBUILD | awk '{print $1}')
+            if ! git ls-remote --tags origin "v${ver}" | grep -q "refs/tags/v${ver}$"; then
+              echo "::notice::Tag v${ver} does not exist yet (release PR) — skipping makepkg, running namcap on PKGBUILD only."
+              su builder -c 'cd /tmp/build && namcap PKGBUILD'
+              exit 0
+            fi
+          fi
+
           su builder -c 'cd /tmp/build && [[ -f PKGBUILD ]] && \
             { grep -q "^source=.*archive/refs/tags" PKGBUILD && updpkgsums || true; } && \
             makepkg -s --noconfirm --clean --cleanbuild'
