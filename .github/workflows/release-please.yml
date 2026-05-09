@@ -1,0 +1,30 @@
+# release-please opens a "chore(main): release X.Y.Z" PR on push to main
+# whenever the conventional-commit history since the last release contains
+# a bump-worthy commit. Merging that PR pushes the tag, which the existing
+# release.yml picks up to publish to the AUR.
+#
+# Bump rules: feat: → minor, fix: → patch, BREAKING CHANGE: → major.
+# Version strings in CMakeLists.txt and aur/hyprmural/PKGBUILD are kept in
+# sync via the `# x-release-please-version` markers on those files.
+
+name: release-please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          target-branch: main
