@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <functional>
 #include <string>
 #include <unordered_map>
@@ -36,5 +37,10 @@ private:
 // line.
 std::unordered_map<std::string, std::string>
 parse_monitors_active_workspace(const std::string& monitors_response);
+
+// Parse the plain-text response of `workspacerules` and return the highest
+// purely-numeric workspace id declared (named/special rules are ignored).
+// Returns 0 if no numeric rule is found.
+size_t max_numeric_workspace_id(const std::string& workspacerules_response);
 
 }  // namespace hm

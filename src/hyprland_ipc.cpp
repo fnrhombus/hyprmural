@@ -1,5 +1,7 @@
 #include "hyprland_ipc.h"
 
+#include <algorithm>
+#include <cctype>
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
@@ -171,6 +173,31 @@ parse_monitors_active_workspace(const std::string& text) {
         }
     }
     return result;
+}
+
+size_t max_numeric_workspace_id(const std::string& text) {
+    static const std::string kPrefix = "Workspace rule ";
+    size_t max_id = 0;
+
+    size_t pos = 0;
+    while (pos < text.size()) {
+        const auto nl = text.find('\n', pos);
+        const std::string line =
+            text.substr(pos, (nl == std::string::npos ? text.size() : nl) - pos);
+        pos = (nl == std::string::npos ? text.size() : nl + 1);
+
+        if (!line.starts_with(kPrefix)) continue;
+        const auto colon = line.find(':', kPrefix.size());
+        if (colon == std::string::npos) continue;
+        const std::string name = line.substr(kPrefix.size(), colon - kPrefix.size());
+        if (name.empty()) continue;
+        if (!std::all_of(name.begin(), name.end(),
+                          [](unsigned char c) { return std::isdigit(c); })) {
+            continue;  // e.g. "special:scratch" — not a numbered workspace
+        }
+        max_id = std::max(max_id, static_cast<size_t>(std::stoul(name)));
+    }
+    return max_id;
 }
 
 }  // namespace hm

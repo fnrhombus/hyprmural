@@ -285,12 +285,27 @@ int main(int argc, char** argv) {
             s->set_texture(textures.at(cfg.default_image).get());
         }
 
-        // Pre-pick numeric workspaces 1..9 from a shuffled pool so each
+        // Pre-pick numeric workspaces 1..N from a shuffled pool so each
         // gets a distinct image (when the pool is at least that big), and
         // so consumers can render full per-workspace state at session
         // start without waiting for each to be visited. Lazy picks for
         // any other workspace fall through to uniform-random in
         // pick_path. Explicit per_workspace pins still win.
+        //
+        // N is the highest numbered workspace declared via `workspace =
+        // <id>, ...` rules (queried from Hyprland itself, so a special:
+        // workspace like the one this pre-pick used to waste on 8/9
+        // doesn't steal a distinct image from the pool). Falls back to the
+        // historical 9 if the compositor can't be reached.
+        size_t numeric_workspace_count = 9;
+        try {
+            const size_t detected =
+                hm::max_numeric_workspace_id(hm::HyprlandIPC::request("workspacerules"));
+            if (detected > 0) numeric_workspace_count = detected;
+        } catch (const std::exception&) {
+            // IPC unavailable — keep the fallback.
+        }
+
         const auto reshuffle = [&]() {
             if (!cfg.randomize) return;
             randomized.clear();
@@ -298,7 +313,7 @@ int main(int argc, char** argv) {
             std::iota(indices.begin(), indices.end(), 0);
             std::shuffle(indices.begin(), indices.end(), rng);
             size_t taken = 0;
-            for (int i = 1; i <= 9; ++i) {
+            for (size_t i = 1; i <= numeric_workspace_count; ++i) {
                 const std::string ws = std::to_string(i);
                 if (cfg.per_workspace.count(ws)) continue;
                 randomized.emplace(ws, pool[indices[taken % pool.size()]]);
