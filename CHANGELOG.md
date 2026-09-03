@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/fnrhombus/hyprmural/compare/v1.1.0...v1.1.1) (2026-09-03)
+
+
+### Bug Fixes
+
+* detect numeric workspace count instead of hardcoding 1..9 ([#5](https://github.com/fnrhombus/hyprmural/issues/5)) ([a04f2ef](https://github.com/fnrhombus/hyprmural/commit/a04f2efaa572a08d9746b880cd3aa9f8ef5b2219))
+
 ## [1.1.0](https://github.com/fnrhombus/hyprmural/compare/v1.0.0...v1.1.0) (2026-05-08)
 
 
